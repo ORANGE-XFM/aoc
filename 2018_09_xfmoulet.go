@@ -1,3 +1,4 @@
+// very slow, should have used a circular linked list ! 
 package main
 import (
 	"fmt"
@@ -44,11 +45,11 @@ func compute(NPLAYERS int, MARBLE int) {
 			}
 		
 			removed := marbles[idx_rem]
-			fmt.Println(marble,"removed",removed)
+			//fmt.Println(marble,"removed",removed)
 			marbles = remove(marbles, idx_rem)
 
 			scores[player-1] += marble + removed
-			pos = idx_rem+1
+			pos = (idx_rem+1)%len(marbles)
 		} else {
 			marbles = insert(marbles,pos+1,marble)
 			pos=(pos+2)%(len(marbles))
@@ -73,6 +74,7 @@ func main() {
 	// compute(21,6111)
 	// compute(30,5807)
 
-	// compute(468, 71010)
+	compute(468, 71010)
+	compute(468, 71010*100)
 	
 }
