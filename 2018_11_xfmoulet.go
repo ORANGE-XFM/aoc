@@ -11,13 +11,13 @@ func gridval(serial int, x int, y int) int {
 	return digit - 5
 }
 
-func maxpower(matrix [301][301]int,size int) (int,int,int) {
-		maxpwr, maxx, maxy := 0, 0, 0
+func maxpower(matrix [301][301]int, size int) (int, int, int) {
+	maxpwr, maxx, maxy := 0, 0, 0
 	for i := 1; i <= 300-size+1; i++ {
 		for j := 1; j <= 300-size+1; j++ {
 			pwr := 0
-			for di :=0 ; di<size ; di++ {
-				for dj :=0 ; dj<size ; dj++ {
+			for di := 0; di < size; di++ {
+				for dj := 0; dj < size; dj++ {
 					pwr += matrix[i+di][j+dj]
 				}
 			}
@@ -28,7 +28,7 @@ func maxpower(matrix [301][301]int,size int) (int,int,int) {
 			}
 		}
 	}
-	return maxpwr,maxx,maxy
+	return maxpwr, maxx, maxy
 }
 
 func main() {
@@ -41,7 +41,6 @@ func main() {
 	fmt.Println(gridval(39, 217, 196), 0)
 	fmt.Println(gridval(71, 101, 153), 4)
 
-
 	// Fill matrix
 	//serial := 42
 	serial := 9445
@@ -52,8 +51,8 @@ func main() {
 		}
 	}
 
-	for sz:=1;sz<=300;sz++ {
-		maxpwr,maxx,maxy := maxpower(matrix,sz)
-		fmt.Println("maxpwr",maxpwr,"x=",maxx,"y=", maxy, "sz=",sz)
+	for sz := 1; sz <= 300; sz++ {
+		maxpwr, maxx, maxy := maxpower(matrix, sz)
+		fmt.Println("maxpwr", maxpwr, "x=", maxx, "y=", maxy, "sz=", sz)
 	}
 }

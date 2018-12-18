@@ -109,15 +109,15 @@ func readQuad(str string, sep string) Regs {
 	return regs
 }
 
-func print_map(mat [16][16] bool) {
+func print_map(mat [16][16]bool) {
 	// display
 	fmt.Println("opcodes ===")
-	for i := 0; i<16;i++ {
-		fmt.Print(i,":")
-		for j:=0;j<16;j++ {	
-			s := " ."			
+	for i := 0; i < 16; i++ {
+		fmt.Print(i, ":")
+		for j := 0; j < 16; j++ {
+			s := " ."
 			if mat[i][j] {
-				s=" x"
+				s = " x"
 			}
 			fmt.Print(s)
 
@@ -129,32 +129,34 @@ func print_map(mat [16][16] bool) {
 func solve(mat [16][16]bool) [16]int {
 	// while not all solved
 	tosolve := 16
-	known := [16]int{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}
+	known := [16]int{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
 	k := 0
 	// display
 	fmt.Println("opcodes ===")
 
-	for tosolve>0 {
-		k = (k+1)%16 // next, possibly loop
-		if known[k]>=0 {continue} // already solved
+	for tosolve > 0 {
+		k = (k + 1) % 16 // next, possibly loop
+		if known[k] >= 0 {
+			continue
+		} // already solved
 
 		// solved one ?
 		nb_ok := 0
 		op_ok := -1
-		for i:=0;i<16;i++ {
+		for i := 0; i < 16; i++ {
 			if mat[k][i] {
-				nb_ok+=1
+				nb_ok += 1
 				op_ok = i
 			}
 		}
 
 		// yes, mark as known
-		if nb_ok==1 {
-			tosolve-=1
+		if nb_ok == 1 {
+			tosolve -= 1
 			known[k] = op_ok
-			fmt.Println("solved",k,"->",opnames[op_ok],op_ok)
-			for j:=0;j<16;j++ {
-				if j!=k { 
+			fmt.Println("solved", k, "->", opnames[op_ok], op_ok)
+			for j := 0; j < 16; j++ {
+				if j != k {
 					mat[j][op_ok] = false // now others are now not possible
 				}
 			}
@@ -166,17 +168,18 @@ func solve(mat [16][16]bool) [16]int {
 
 func check_multiple(scanner *bufio.Scanner) [16][16]bool {
 
-	var possible_ops [16][16]bool // opcode id -> possible opcodes. 
-	for i:=0;i<16;i++ {
-		for j:=0;j<16;j++ {
+	var possible_ops [16][16]bool // opcode id -> possible opcodes.
+	for i := 0; i < 16; i++ {
+		for j := 0; j < 16; j++ {
 			possible_ops[i][j] = true
 		}
 	}
 
-
 	nb_multiples := 0
 	for {
-		if !scanner.Scan() { break }
+		if !scanner.Scan() {
+			break
+		}
 		reg_in := readQuad(scanner.Text()[9:19], ", ")
 		//fmt.Println("reg_in", reg_in)
 
@@ -192,9 +195,9 @@ func check_multiple(scanner *bufio.Scanner) [16][16]bool {
 
 		// check if multiple possibles
 		nbok := 0
-		opid,a,b,c := instr[0],instr[1],instr[2],instr[3]
+		opid, a, b, c := instr[0], instr[1], instr[2], instr[3]
 		for op := op_addr; op < NB_OPS; op++ {
-			if opcode(op, a,b,c , reg_in) == reg_out {
+			if opcode(op, a, b, c, reg_in) == reg_out {
 				//fmt.Println("    op", opnames[op], "matches")
 				nbok += 1
 			} else {
@@ -202,32 +205,32 @@ func check_multiple(scanner *bufio.Scanner) [16][16]bool {
 				possible_ops[opid][op] = false
 			}
 		}
-		if nbok >= 3 { 
-			nb_multiples += 1 
+		if nbok >= 3 {
+			nb_multiples += 1
 			//fmt.Println("multiples",nb_multiples)
 		}
 	}
-	fmt.Println("nb multiples",nb_multiples)
+	fmt.Println("nb multiples", nb_multiples)
 	return possible_ops
 }
 
-func exec_prog(filename string, op_map [16] int) {
+func exec_prog(filename string, op_map [16]int) {
 	var regs Regs
 	scanner := openfile(filename)
 	for scanner.Scan() {
 		q := readQuad(scanner.Text(), " ")
-		op,a,b,c := q[0],q[1],q[2],q[3]
-		regs = opcode(op_map[op],a,b,c,regs)
-		fmt.Println("op", op,"->",op_map[op],a,b,c, "regs",regs)
+		op, a, b, c := q[0], q[1], q[2], q[3]
+		regs = opcode(op_map[op], a, b, c, regs)
+		fmt.Println("op", op, "->", op_map[op], a, b, c, "regs", regs)
 	}
 }
 
 func main() {
 	//scan := openfile("2018_16_exinstrs.txt")
 	scan := openfile("2018_16_instrs.data")
-	mat  := check_multiple(scan)
+	mat := check_multiple(scan)
 	print_map(mat)
 	op_map := solve(mat)
 	fmt.Println(op_map)
-	exec_prog("2018_16_prog.data",op_map)
+	exec_prog("2018_16_prog.data", op_map)
 }

@@ -11,7 +11,6 @@ const msg2 = "+3\n+3\n+4\n-2\n-4"
 const msg3 = "-6\n+3\n+8\n+5\n-6"
 const msg4 = "+7\n+7\n-2\n-7\n-4"
 
-
 func find_double(msg string) {
 	// create values
 	values := []int{}
@@ -22,7 +21,7 @@ func find_double(msg string) {
 			}
 			values = append(values, x)
 		} else {
-			fmt.Println("Error parsing",s)
+			fmt.Println("Error parsing", s)
 		}
 	}
 	fmt.Println(values)
@@ -30,18 +29,18 @@ func find_double(msg string) {
 	index := 0
 	sum := 0
 	// map int to bool
-	sum_sofar := map[int]bool {}
+	sum_sofar := map[int]bool{}
 
 	for {
 		sum += values[index]
 
 		// check present with hashmap
-		_,present := sum_sofar[sum]
-		if (present) {
+		_, present := sum_sofar[sum]
+		if present {
 			goto exit
 		}
 
-		// next 
+		// next
 		sum_sofar[sum] = true
 		index += 1
 		index %= len(values)
@@ -51,11 +50,10 @@ exit:
 	fmt.Println(sum, index)
 }
 
-
 func main() {
-	arr := []string {msg2,msg3,msg4,msg}
+	arr := []string{msg2, msg3, msg4, msg}
 
-	for _,s := range arr {
+	for _, s := range arr {
 		find_double(s)
-	} 
+	}
 }

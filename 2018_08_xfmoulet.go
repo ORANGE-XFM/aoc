@@ -23,24 +23,23 @@ func readfile(filename string) *bufio.Scanner {
 func printNums(scanner *bufio.Scanner) {
 	// read file word by word
 	for scanner.Scan() {
-		x,_ := strconv.Atoi(scanner.Text())
+		x, _ := strconv.Atoi(scanner.Text())
 		fmt.Println(x)
 	}
 }
 
-
 func parseTree(scanner *bufio.Scanner) int {
 	sum := 0
 	scanner.Scan()
-	nb_child,_ := strconv.Atoi(scanner.Text())
+	nb_child, _ := strconv.Atoi(scanner.Text())
 	scanner.Scan()
-	nb_meta,_  := strconv.Atoi(scanner.Text())
-	for i:=0;i<nb_child;i++ {
+	nb_meta, _ := strconv.Atoi(scanner.Text())
+	for i := 0; i < nb_child; i++ {
 		sum += parseTree(scanner)
 	}
-	for i:=0;i<nb_meta;i++ {
+	for i := 0; i < nb_meta; i++ {
 		scanner.Scan()
-		meta,_  := strconv.Atoi(scanner.Text())
+		meta, _ := strconv.Atoi(scanner.Text())
 		sum += meta
 	}
 	return sum
@@ -48,30 +47,30 @@ func parseTree(scanner *bufio.Scanner) int {
 
 func parseTreeB(scanner *bufio.Scanner) int {
 	scanner.Scan()
-	nb_child,_ := strconv.Atoi(scanner.Text())
+	nb_child, _ := strconv.Atoi(scanner.Text())
 	scanner.Scan()
-	nb_meta,_  := strconv.Atoi(scanner.Text())
+	nb_meta, _ := strconv.Atoi(scanner.Text())
 
-	child := make([]int,nb_child)
-	for i:=0;i<nb_child;i++ {
+	child := make([]int, nb_child)
+	for i := 0; i < nb_child; i++ {
 		child[i] = parseTreeB(scanner)
 	}
 
 	if nb_child == 0 {
 		sum := 0
-		for i:=0;i<nb_meta;i++ {
+		for i := 0; i < nb_meta; i++ {
 			scanner.Scan()
-			meta,_  := strconv.Atoi(scanner.Text())
+			meta, _ := strconv.Atoi(scanner.Text())
 			sum += meta
 		}
 		return sum
-	} else {		
+	} else {
 		sum := 0
-		for i:=0;i<nb_meta;i++ {
+		for i := 0; i < nb_meta; i++ {
 			scanner.Scan()
-			index,_  := strconv.Atoi(scanner.Text())
-			index -=1
-			if index>=0 && index<nb_child {
+			index, _ := strconv.Atoi(scanner.Text())
+			index -= 1
+			if index >= 0 && index < nb_child {
 				sum += child[index]
 			}
 		}
