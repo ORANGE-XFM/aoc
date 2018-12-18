@@ -5,6 +5,7 @@ import (
 	"os"
 	"bufio"
 	"strconv"
+	"log"
 )
 
 const H = 2000
@@ -36,62 +37,113 @@ func (grid *Grid) load(filename string) {
 		b := strings.Split(ab[1],"..")
 		b1,_ := strconv.Atoi(b[0][2:])
 		b2,_ := strconv.Atoi(b[1])
-		fmt.Println("s:",s,"a:",a,"b:",b1,"..",b2,horiz)
+		//fmt.Println("s:",s,"a:",a,"b:",b1,"..",b2,horiz)
 
 		if horiz {
 			for x:=b1;x<=b2;x++ {
 				grid[a][x] = '#'
-				fmt.Println(x,a)
 			}
 		} else {
 			for y:=b1;y<=b2;y++ {
 				grid[y][a] = '#'
-				fmt.Println(a,y)
 			}
 		}
 	}
 
-	// source
-	grid[0][500] = '+'
 }
 
 
 func (grid *Grid) flood(x int, y int) {
-	// flood fill down from position
-	// fall from source to bottom or 
-	grid[y][x] = '|'
-	for grid[y][x] != '#' && y<H {
-		grid[y][x]='|'
-		fmt.Println("y",y)
+
+	//fmt.Println("flood",x,y)
+	// source
+	//grid[y][x] = '+'
+
+	for grid[y][x] != '#' && grid[y][x] != '~' && y<H-1 {
+		//grid[y][x]='|'
 		y += 1
+	}
+	if y==H-1 {
+		//fmt.Println("too low")
+		return 
 	}
 	y -=1
 
 	// extend left
-	for x1 := x; x1>0 && grid[y][x1] != '#' ; x1-- {
-		grid[y][x1] = '~'
-		fmt.Println("x1",x1)
+	overflow := false
+	x1 := x
+	for x1>0 && grid[y][x1-1] == '.'  { 
+		x1-- 
+		if grid[y+1][x1-1] == '.' {
+			grid.flood(x1-1,y)
+			overflow = true
+			goto next
+		}
 	}
+	next:
 	// extend right
-	for x2 := x; x2<W && grid[y][x2] != '#' ; x2++ {
-		grid[y][x2] = '~'
-		fmt.Println("x2",x2)
+	x2 := x
+	for x2<W && grid[y][x2+1] == '.'  { 
+		x2++ 
+		if grid[y+1][x2+1] == '.' {
+			grid.flood(x2+1,y)
+			overflow = true
+			goto next2
+		}
+	}
+	next2:
+
+	if overflow {
+		return
+	}
+
+	// fill it ?
+	// fmt.Println("fill it",y,x1,x2)
+	if x1>0 && x2<W {
+		for i:=x1;i<=x2;i++ {
+			grid[y][i] = '~'
+		}
 	}
 }
 	
 func (grid *Grid) print() {
-	for y:=0;y<25;y++ { // 0..H
-		for x:=480;x<520 ; x++ { // 0..W
-			fmt.Printf("%c ",grid[y][x])
+	// output pgm file
+	fmt.Println("P2")
+	fmt.Println(W,H)
+	fmt.Println(128)
+
+	for y:=0;y<H;y++ { // 0..H
+		for x:=0;x<W ; x++ { // 0..W
+			fmt.Printf("%02d ",grid[y][x])
 		}
 		fmt.Print("\n")
 	}
+	log.Println("nb water",grid.count_water())
+}
+
+func (grid *Grid) count_water() int {
+	nb := 0
+	for y:=0;y<H;y++ {
+		for x:=0;x<W;x++ {
+			if grid[y][x]=='~' {
+				nb += 1
+			}
+		}
+	}
+	return nb
 }
 
 func main() {
 	var g Grid
-	g.load("2018_17_ex.txt")
-	g.print()
-	g.flood(500,0)
-	g.print()
+	g.load("2018_17.data")
+	prev := 0
+	for i:=0;i<10000;i++ {
+		g.flood(500,0)
+		curr := g.count_water()
+		if curr == prev {
+			break
+		}
+		prev = curr
+	}
+	g.print()		
 }
