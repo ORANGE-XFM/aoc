@@ -27,19 +27,21 @@ const (
 )
 
 type Group struct {
-	system, units, hitpoints int
+	system, id int 
+	units, hitpoints int
 	attack_pts, attack int
 	initiative int
 	mods [5]byte
 	//
-	attacks, attacked_by int
+	defending *Group
+	attacked bool
 }
 
 var test_systems = [] Group { 
-		{ system : s_immune,    units:17,   hitpoints:5390, attack_pts:4507, attack:fire,         initiative:2, mods: [5]byte { radiation:weak, bludgeoning:weak } },
-		{ system : s_immune,    units:989,  hitpoints:1274, attack_pts:25,   attack:slashing,     initiative:3, mods: [5]byte { fire:immune, bludgeoning:weak, slashing:weak } },
-		{ system : s_infection, units:801,  hitpoints:4706, attack_pts:116,  attack:bludgeoning,  initiative:1, mods: [5]byte { radiation:weak } },
-		{ system : s_infection, units:4485, hitpoints:2961, attack_pts:12,   attack:slashing,     initiative:4, mods: [5]byte { radiation:immune,fire:weak, cold:weak } },
+		{ system : s_immune,    id: 1, units:17,   hitpoints:5390, attack_pts:4507, attack:fire,         initiative:2, mods: [5]byte { radiation:weak, bludgeoning:weak } },
+		{ system : s_immune,    id: 2, units:989,  hitpoints:1274, attack_pts:25,   attack:slashing,     initiative:3, mods: [5]byte { fire:immune, bludgeoning:weak, slashing:weak } },
+		{ system : s_infection, id: 1, units:801,  hitpoints:4706, attack_pts:116,  attack:bludgeoning,  initiative:1, mods: [5]byte { radiation:weak } },
+		{ system : s_infection, id: 2, units:4485, hitpoints:2961, attack_pts:12,   attack:slashing,     initiative:4, mods: [5]byte { radiation:immune,fire:weak, cold:weak } },
 	}
 
 var systems = [] Group {
@@ -74,55 +76,133 @@ func (grp Group) effective_power() int {
 	return grp.attack_pts*grp.units
 }
 
-func prepare_attack(groups []Group) {
+func(grp Group) system_name() string {
+	return []string{"Immune","Infection"}[grp.system]
+}
 
-	// sort groups by effective power
-	sort.Slice(groups, func(i, j int) bool {
-			return groups[i].effective_power()*1000+groups[i].initiative > groups[j].effective_power()*1000+groups[j].initiative // decreasing eff power, decreasing initiative
-	})
+func turn(groups []Group) int {
+	fmt.Println(" --------- start turn --")
 
-	for i:=0;i<len(groups);i++ {
-		groups[i].attacked_by = -1
-		groups[i].attacks = -1
+	for i, grp := range groups {
+		if grp.units == 0 { continue }
+		groups[i].attacked = false
+		groups[i].defending = nil
+		fmt.Println("Group",grp.id,grp.system_name(), grp.units,"units of effective power", grp.effective_power())
 	}
 
+	fmt.Println(" -- selection phase --")
+	// sort groups by effective power
+	sort.Slice(groups, func(i, j int) bool {
+			// decreasing eff power, decreasing initiative
+			return groups[i].effective_power()*1000+groups[i].initiative > groups[j].effective_power()*1000+groups[j].initiative 
+	})
+
 	for att_id,att := range groups {
+		if att.units==0 {
+			continue // skip killed groups ?
+		}
 		// get the best attack
 		var most_damage int = 0
-		attacked := 0
+		var defending *Group  = nil
 		for def_id, def := range groups {
 			damage := att.damage(def)
-			if def.system == att.system || damage == 0 || def.attacked_by!=-1 {
+
+			// cant attack those
+			if def.system == att.system || damage == 0 || def.attacked || def.units==0 {
 				continue
 			}
 
 			if damage > most_damage || 
-				(damage == most_damage && def.effective_power()>groups[attacked].effective_power()) || 
-				(damage == most_damage && def.effective_power()>groups[attacked].effective_power() && def.initiative > groups[attacked].initiative)  { // check ties order : target with the most effective power or initiative
+				(damage == most_damage && def.effective_power()>defending.effective_power()) || 
+				(damage == most_damage && def.effective_power()==defending.effective_power() && def.initiative > defending.initiative)  { // check ties order : target with the most effective power or initiative
 				most_damage = damage
-				attacked = def_id				
+				defending = &groups[def_id]
 			}
 		}
-		fmt.Println("group",att_id+1,"of type",att.system,"would deal group",attacked+1,"with damage",most_damage)
-		groups[attacked].attacked_by = att_id
-		groups[attacked].attacks = attacked
+		if defending != nil {
+			fmt.Println(att.system_name(),"group",att.id,"would deal defending group",defending.id,"with damage",most_damage)
+			defending.attacked = true
+			groups[att_id].defending = defending
+		} else {
+			fmt.Println(att.system_name(),"group",att.id,"would not attack")
+		}
 	}
 
-	// attack phase
+	fmt.Println(" -- attack phase --")
 
-	// sort by initiative, decreasing
-	sort.Slice(groups, func(i,j int) bool {
-		return groups[i].initiative > groups[j].initiative
+	tmp := make([]*Group, len(groups))
+	for i,_ := range groups {
+		tmp[i] = &groups[i]
+	}
+
+	one_attacked := false
+	// sort groups by initiative, decreasing
+	sort.Slice(tmp, func(i,j int) bool {
+		return tmp[i].initiative > tmp[j].initiative
 		})
-	for att_id,att := range groups {
-		def := groups[att.attacks]
-		units := att.damage(def) / def.hitpoints
-		fmt.Println("Group",att_id,"attacks",att.attacks,"killed",units,"units")
+	for _,att := range tmp {
+		if att.units==0 || att.defending == nil {
+			continue // skip killed groups ?
+		}
+		one_attacked = true // check none attacks
+
+		def := att.defending
+		units := att.damage(*def) / def.hitpoints
+		fmt.Println(att.system_name(),"Group",att.id,"attacks defending group",def.id,"would kill",units,"units over",def.units)
+		def.units -= units
+		if def.units<0 {
+			def.units = 0
+		}
+	}
+
+
+	// check winning 
+	units := [2]int{0,0}
+	for _,grp := range groups {
+		units[grp.system] += grp.units
+	}
+
+	switch {
+		case units[s_immune]==0 && units[s_infection]==0 : return -1 // draw is a defeat 
+		case units[s_immune]==0 : return -units[s_infection]
+		case units[s_infection]==0 : return units[s_immune]
+		case !one_attacked : return -1 // blocked, defeat
+		default: return 0
+	}
+}
+
+func battle(system [] Group, boost int ) int {
+	// make a copy ! 
+	tmp := make ([]Group, len(system))
+	copy(tmp,system)
+
+	// boost it ! 
+	for i := range tmp {
+		if tmp[i].system ==  s_immune {
+			tmp[i].attack_pts += boost
+		}
+	}
+
+	for {
+		res := turn(tmp)
+		if res!=0 {
+			return res
+			break
+		}		
+	}
+	return 0
+}
+
+func find_boost(system[] Group) {
+	for boost:=0;;boost++ {
+		res := battle(system,boost)
+		fmt.Println("====== Result of fight with Boost",boost," : ",res)
+		if res>0 { return }
 	}
 }
 
 func main() {
-	system := test_systems
-	fmt.Println("- Immune to Infection")
-	prepare_attack(system)
+	fmt.Println("====== Result of fight with Boost",0," : ",battle(test_systems,0),"\n")
+	fmt.Println("====== Result of fight with Boost",1570," : ",battle(test_systems,1570),"\n")
+	find_boost(systems)
 }
