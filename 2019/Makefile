@@ -1,3 +1,10 @@
-% : %a.rs %b.rs
-	rustc $*a.rs && ./$*a
-	rustc $*b.rs && ./$*b
+%: %a %b
+	./$*a # ------------
+	./$*b # ------------
+
+%:: %.rs
+	rustc $*.rs
+
+clean:
+	git clean -xi
+	
