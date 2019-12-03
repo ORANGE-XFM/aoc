@@ -25,8 +25,18 @@ fn main() -> Result<()> {
     let split_line = line.split(",");
     let pro_iter = split_line.map(|x| x.parse::<i32>().expect("cannot parse"));
     let program: Vec<i32> = pro_iter.collect();
-    println!("value {:?}", program);
-    println!("prog(12,2)= {:?}", run(&program, 12, 2));
+
+    println!("prog(1,12)= {}", run(&program, 1, 12));
+
+    'outer: for i in 0..99 {
+        for j in 0..99 {
+            let res = run(&program, i, j);
+            if res == 19690720 {
+                println!("prog({},{})= {}", i, j, res);
+                break 'outer;
+            }
+        }
+    }
 
     Ok(())
 }
