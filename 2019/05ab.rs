@@ -45,8 +45,7 @@ fn run(p0: &Vec<i32>, input:i32) -> i32 {
             _ => { println!("Error: unknown op {}",p[ip]);return -1},
         }
         
-        ip += 1+match instr {99=>0, 1|2|7|8=>3, 3|4=>1, 5|6=>2,_=>{println!("wat");0}}; // Jumps already changed
-    }
+        ip += 1+match instr {99=>0, 1|2|7|8=>3, 3|4=>1, 5|6=>2,_=>{println!("wat");0}}; 
     return if output==-12345678 {p[0]} else {output}; // special case for program 02 that should still work but cannot output 
 }
 

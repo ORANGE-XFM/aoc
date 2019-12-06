@@ -8,16 +8,21 @@ try :
 	while True :
 		op = next(el_it)
 		INSTRUCTIONS = {
-			1:("add",3),		2:("mul",3),
-			3:("input",1),		4:("output",1),
-			5:("je",2),			6:("jne",2),
-			7:("lt",3),			8:("eq",3),
-			99:("end",0),
+			1:"{2}={0}+{1}",
+			2:"{2}={0}*{1}",
+			3:"{0}=input",
+			4:"output({0})",
+			5:"if {0} jmp {1}",
+			6:"if not {0} jmp {1}",
+			7:"{2} = {0}<{1}",
+			8:"{2} = {0}=={1}",
+			99:"end.",
 			}
-		instr,n = INSTRUCTIONS.get(op%100,(f'WTF:{op}',0))
+		instr = INSTRUCTIONS.get(op%100,f'WTF:{op}')
+		n=sum(1 for c in instr if c=='{')
 		def opmode(i) : return '' if op//(10**(2+i))%10 else '@'
 		operands = [opmode(i)+str(next(el_it)) for i in range(n)]
-		print(ip,instr,*operands,sep='\t')
+		print(ip,instr.format(*operands),sep='\t')
 		ip += n+1
 except StopIteration : 
 	pass
