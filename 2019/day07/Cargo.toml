@@ -1,0 +1,9 @@
+[package]
+name = "day07"
+version = "0.1.0"
+authors = ["xavier-frederic moulet <xavier-frederic.moulet@orange.com>"]
+edition = "2018"
+
+[dependencies]
+permutohedron = "0.2.4"
+intcode = { path = "../intcode" }
