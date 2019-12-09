@@ -5,6 +5,7 @@ instrs = { # opcode:opnum,nb_args
   	"input" : (3,1),"output" : (4,1),
 	   "je" : (5,2),   "jne" : (6,2),
 	   "lt" : (7,3),	"eq" : (8,3),
+	 "base" : (9,2),
 	  "end" : (99,0),	
 }
 labels={} 

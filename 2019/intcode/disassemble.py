@@ -12,6 +12,7 @@ try :
 			3:("input",1),		4:("output",1),
 			5:("je",2),			6:("jne",2),
 			7:("lt",3),			8:("eq",3),
+			9:("base",2),
 			99:("end",0),
 			}
 		instr,n = INSTRUCTIONS.get(op%100,(f'WTF:{op}',0))

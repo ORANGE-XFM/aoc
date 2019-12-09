@@ -16,6 +16,7 @@ try :
 			6:"if not {0} jmp {1}",
 			7:"{2} = {0}<{1}",
 			8:"{2} = {0}=={1}",
+			9:"base <- {0}",
 			99:"end.",
 			}
 		instr = INSTRUCTIONS.get(op%100,f'WTF:{op}')
