@@ -1,7 +1,8 @@
-use intcode::Program;
+use intcode::{Program, Word};
 use permutohedron::LexicalPermutation;
+use std::fs::read_to_string;
 
-fn runmachine_a(pr: &Program, arg: Vec<i32>) -> Option<i32> {
+fn runmachine_a(pr: &Program, arg: Vec<Word>) -> Option<Word> {
     // runs 5 machines with inputs, same program but clone it 5 times
     let mut p = [pr.clone(), pr.clone(), pr.clone(), pr.clone(), pr.clone()];
     let mut x = 0;
@@ -17,8 +18,9 @@ fn runmachine_a(pr: &Program, arg: Vec<i32>) -> Option<i32> {
     Some(x)
 }
 
-fn get_maxprog(progfile: &str) -> i32 {
-    let prog = Program::new(progfile);
+fn get_maxprog(progfile: &str) -> Word {
+    let data = read_to_string(progfile).expect("cannot open file ?");
+    let prog = Program::new(&data);
     let mut vmax = 0;
 
     let mut data = [0, 1, 2, 3, 4];
@@ -34,7 +36,7 @@ fn get_maxprog(progfile: &str) -> i32 {
     vmax
 }
 
-fn runmachine_loop(pr: &Program, arg: Vec<i32>) -> i32 {
+fn runmachine_loop(pr: &Program, arg: Vec<Word>) -> Word {
     // runs 5 machines with inputs, same program but clone it 5 times
     let mut p = [pr.clone(), pr.clone(), pr.clone(), pr.clone(), pr.clone()];
     let mut x = 0;
@@ -54,8 +56,9 @@ fn runmachine_loop(pr: &Program, arg: Vec<i32>) -> i32 {
     }
 }
 
-fn looper_prog(progfile: &str) -> i32 {
-    let prog = Program::new(progfile);
+fn looper_prog(progfile: &str) -> Word {
+    let data = read_to_string(progfile).expect("cannot open file ?");
+    let prog = Program::new(&data);
     let mut vmax = 0;
 
     let mut data = [5, 6, 7, 8, 9];
@@ -73,23 +76,27 @@ fn looper_prog(progfile: &str) -> i32 {
 
 fn main() {
     // tests
-    let mut p = Program::new("../05_test.txt");
+    let line05test = read_to_string("../05_test.txt").expect("Something went wrong reading the file ");
+    let line05test8 = read_to_string("../05_test8.txt").expect("Something went wrong reading the file ");
+    let line05 = read_to_string("../05.txt").expect("Something went wrong reading the file ");
+
+    let mut p = Program::new(&line05test);
     p.input(100);
-    let res: Vec<i32> = p.collect();
+    let res: Vec<Word> = p.collect();
     assert_eq!(res, vec![123]);
 
-    let mut p = Program::new("../05_test8.txt");
+    let mut p = Program::new(&line05test8);
     p.input(7);
-    let res: Vec<i32> = p.collect();
+    let res: Vec<Word> = p.collect();
     assert_eq!(res, vec![999]);
 
-    let mut p = Program::new("../05_test8.txt");
+    let mut p = Program::new(&line05test8);
     p.input(8);
-    let res: Vec<i32> = p.collect();
+    let res: Vec<Word> = p.collect();
     assert_eq!(res, vec![1000]);
 
     // several outputs
-    let mut p = Program::new("../05.txt");
+    let mut p = Program::new(&line05);
     p.input(1);
     assert_eq!(p.last(), Some(13210611));
 

@@ -1,6 +1,4 @@
-use std::fs::read_to_string;
-
-type Word = i64;
+pub type Word = i64;
 
 pub struct Program {
     p: Vec<Word>,
@@ -9,7 +7,7 @@ pub struct Program {
     input: Vec<Word>,
 }
 
-const TRACE: bool = true;
+const TRACE: bool = false;
 const PROGSIZE : usize = 1000;
 
 impl Program {
@@ -50,7 +48,7 @@ impl Program {
         self.input.push(n);
     }
 
-    pub fn new_str(prog_str :&str) -> Program {
+    pub fn new(prog_str :&str) -> Program {
         let line = prog_str.trim();
 
         let split_line = line.split(",");
@@ -63,12 +61,6 @@ impl Program {
             input: vec![],
             base: 0
         }
-    }
-
-    pub fn new(filename: &str) -> Program {
-        println!("reading {:?}", filename);
-        let line0 = read_to_string(filename).expect("Something went wrong reading the file ");
-        Program::new_str(&line0)
     }
 }
 
