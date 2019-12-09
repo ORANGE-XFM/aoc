@@ -1,10 +1,12 @@
 use std::fs::read_to_string;
 
+type Word = i64;
+
 pub struct Program {
-    p: Vec<i32>,
+    p: Vec<Word>,
     ip: usize,
-    base: i32,
-    input: Vec<i32>,
+    base: Word,
+    input: Vec<Word>,
 }
 
 const TRACE: bool = true;
@@ -12,8 +14,8 @@ const PROGSIZE : usize = 1000;
 
 impl Program {
 
-    fn arg(&self, n: u32) -> i32 {
-        let mode = (self.p[self.ip] / 10_i32.pow(n + 1)) % 10;
+    fn arg(&self, n: u32) -> Word {
+        let mode = (self.p[self.ip] / 10_i64.pow(n + 1)) % 10;
         let val = self.p[self.ip + n as usize];
         let x = match mode {
             0 => self.p[ val as usize ],
@@ -31,8 +33,8 @@ impl Program {
     }
 
     // set v to the address at addr (indirect mode)
-    fn set_at(&mut self, ofs: u32, v: i32) {
-        let mode = (self.p[self.ip] / 10_i32.pow(ofs + 1)) % 10;
+    fn set_at(&mut self, ofs: u32, v: Word) {
+        let mode = (self.p[self.ip] / 10_i64.pow(ofs + 1)) % 10;
         let k = match mode {
             0 => self.p[self.ip + ofs as usize],
             2 => (self.base + self.p[self.ip + ofs as usize]),
@@ -44,7 +46,7 @@ impl Program {
         }
     }
 
-    pub fn input(&mut self, n: i32) {
+    pub fn input(&mut self, n: Word) {
         self.input.push(n);
     }
 
@@ -52,7 +54,7 @@ impl Program {
         let line = prog_str.trim();
 
         let split_line = line.split(",");
-        let mut pro_vec : Vec<i32> = split_line.map(|x| x.parse::<i32>().expect("cannot parse integer")).collect();
+        let mut pro_vec : Vec<Word> = split_line.map(|x| x.parse::<Word>().expect("cannot parse integer")).collect();
         pro_vec.extend_from_slice(&[0;PROGSIZE]);
 
         Program {
@@ -82,9 +84,9 @@ impl Clone for Program {
 }
 
 impl Iterator for Program {
-    type Item = i32;
+    type Item = Word;
 
-    fn next(&mut self) -> Option<i32> {
+    fn next(&mut self) -> Option<Word> {
         let mut output = None;
 
         loop {
@@ -187,7 +189,7 @@ impl Iterator for Program {
 
 #[cfg(test)]
 mod tests {
-    use super::Program;
+    use super::*;
 
     #[test]
     fn it_works() {
@@ -207,7 +209,7 @@ mod tests {
     fn test_day05_test8_a() {
         let mut p = Program::new_str(PROG_TEST8);        
         p.input(7);
-        let res: Vec<i32> = p.collect();
+        let res: Vec<Word> = p.collect();
         assert_eq!(res, vec![999]);
     }
 
@@ -215,7 +217,7 @@ mod tests {
     fn test_day05_test8_b() {
         let mut p = Program::new_str(PROG_TEST8);        
         p.input(8);
-        let res: Vec<i32> = p.collect();
+        let res: Vec<Word> = p.collect();
         assert_eq!(res, vec![1000]);
     }
 
@@ -223,7 +225,7 @@ mod tests {
     fn test_day05_test8_c() {
         let mut p = Program::new_str(PROG_TEST8);        
         p.input(9);
-        let res: Vec<i32> = p.collect();
+        let res: Vec<Word> = p.collect();
         assert_eq!(res, vec![1001]);
     }
 
@@ -231,14 +233,19 @@ mod tests {
     fn test_09a_quine(){
         let prog = "109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99";
         let p = Program::new_str(&prog);
-        let res: Vec<i32> = p.collect();
+        let res: Vec<Word> = p.collect();
         assert_eq!(res, vec![109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99]);
     }
 
-    // #[test]
-    // fn test_09a_overflow(){
-    //     let mut prog = Program::new_str("1102,34915192,34915192,7,4,7,99,0");
-    //     assert!(prog.collect().expect("no output?") > 1000000000000000); // 16-digit number
-    // }
+    #[test]
+    fn test_09a_overflow(){
+        let mut prog = Program::new_str("1102,34915192,34915192,7,4,7,99,0");
+        assert!(prog.next().expect("no output?") > 1000000000000000_i64); // 16-digit number
+    }
 
+    #[test]
+    fn test_09a_bignum(){
+        let mut prog = Program::new_str("104,1125899906842624,99");
+        assert_eq!(prog.next().expect("no output?") , 1125899906842624_i64); // 16-digit number
+    }
 }
