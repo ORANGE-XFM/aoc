@@ -57,7 +57,7 @@ impl Program {
     pub fn new(prog_str :&str) -> Program {
         let line = prog_str.trim();
 
-        let split_line = line.split(",");
+        let split_line = line.split(',');
         let mut pro_vec : Vec<Word> = split_line.map(|x| x.parse::<Word>().expect("cannot parse integer")).collect();
         pro_vec.extend_from_slice(&[0;PROGSIZE]);
 
@@ -163,7 +163,7 @@ impl Iterator for Program {
 
                 // move relative base
                 9 => {
-                    self.base = self.base + self.arg(1);
+                    self.base += self.arg(1);
                     self.ip += 2;
                 }
 
@@ -205,7 +205,7 @@ mod tests {
 
     #[test]
     fn test_day05_test8_a() {
-        let mut p = Program::new(PROG_TEST8);        
+        let mut p = Program::new(PROG_TEST8);
         p.input(7);
         let res: Vec<Word> = p.collect();
         assert_eq!(res, vec![999]);
@@ -213,7 +213,7 @@ mod tests {
 
     #[test]
     fn test_day05_test8_b() {
-        let mut p = Program::new(PROG_TEST8);        
+        let mut p = Program::new(PROG_TEST8);
         p.input(8);
         let res: Vec<Word> = p.collect();
         assert_eq!(res, vec![1000]);
@@ -221,7 +221,7 @@ mod tests {
 
     #[test]
     fn test_day05_test8_c() {
-        let mut p = Program::new(PROG_TEST8);        
+        let mut p = Program::new(PROG_TEST8);
         p.input(9);
         let res: Vec<Word> = p.collect();
         assert_eq!(res, vec![1001]);
