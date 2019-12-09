@@ -12,9 +12,15 @@ const PROGSIZE : usize = 1000;
 
 impl Program {
 
-    fn arg(&self, n: u32) -> Word {
+    fn arg_info(&self, n:u32) -> (Word, Word) {
         let mode = (self.p[self.ip] / 10_i64.pow(n + 1)) % 10;
         let val = self.p[self.ip + n as usize];
+        (mode,val)
+    }
+
+    fn arg(&self, n: u32) -> Word {
+        let (mode,val) = self.arg_info(n);
+
         let x = match mode {
             0 => self.p[ val as usize ],
             1 => val,
@@ -31,11 +37,11 @@ impl Program {
     }
 
     // set v to the address at addr (indirect mode)
-    fn set_at(&mut self, ofs: u32, v: Word) {
-        let mode = (self.p[self.ip] / 10_i64.pow(ofs + 1)) % 10;
+    fn set_at(&mut self, n: u32, v: Word) {
+        let (mode,val) = self.arg_info(n);
         let k = match mode {
-            0 => self.p[self.ip + ofs as usize],
-            2 => (self.base + self.p[self.ip + ofs as usize]),
+            0 => val,
+            2 => (self.base + val),
             _ => { println!("unknown mode {}", mode); 0 }
         }  as usize;
         self.p[k] = v;
@@ -190,7 +196,7 @@ mod tests {
 
     #[test]
     fn test_day05_test() {
-        let mut p = Program::new_str("3,9,1001,9,23,9,4,9,99,0");
+        let mut p = Program::new("3,9,1001,9,23,9,4,9,99,0");
         p.input(100);
         assert_eq!(p.next(),Some(123));
     }
@@ -199,7 +205,7 @@ mod tests {
 
     #[test]
     fn test_day05_test8_a() {
-        let mut p = Program::new_str(PROG_TEST8);        
+        let mut p = Program::new(PROG_TEST8);        
         p.input(7);
         let res: Vec<Word> = p.collect();
         assert_eq!(res, vec![999]);
@@ -207,7 +213,7 @@ mod tests {
 
     #[test]
     fn test_day05_test8_b() {
-        let mut p = Program::new_str(PROG_TEST8);        
+        let mut p = Program::new(PROG_TEST8);        
         p.input(8);
         let res: Vec<Word> = p.collect();
         assert_eq!(res, vec![1000]);
@@ -215,7 +221,7 @@ mod tests {
 
     #[test]
     fn test_day05_test8_c() {
-        let mut p = Program::new_str(PROG_TEST8);        
+        let mut p = Program::new(PROG_TEST8);        
         p.input(9);
         let res: Vec<Word> = p.collect();
         assert_eq!(res, vec![1001]);
@@ -224,20 +230,20 @@ mod tests {
     #[test]
     fn test_09a_quine(){
         let prog = "109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99";
-        let p = Program::new_str(&prog);
+        let p = Program::new(&prog);
         let res: Vec<Word> = p.collect();
         assert_eq!(res, vec![109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99]);
     }
 
     #[test]
     fn test_09a_overflow(){
-        let mut prog = Program::new_str("1102,34915192,34915192,7,4,7,99,0");
+        let mut prog = Program::new("1102,34915192,34915192,7,4,7,99,0");
         assert!(prog.next().expect("no output?") > 1000000000000000_i64); // 16-digit number
     }
 
     #[test]
     fn test_09a_bignum(){
-        let mut prog = Program::new_str("104,1125899906842624,99");
+        let mut prog = Program::new("104,1125899906842624,99");
         assert_eq!(prog.next().expect("no output?") , 1125899906842624_i64); // 16-digit number
     }
 }
