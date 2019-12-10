@@ -71,9 +71,6 @@ fn main() {
 
 	println!("angle 200 {}",has_angle((8,2),(11,13)));
 	println!("angle 201 {}",has_angle((10,9),(11,13)));
-	// let sorted_angles = all_angles.iter().sorted();
-	// println!("{:?}",sorted_angles );
-
 
 	let angle_200 = laser_angle(&a,center_id);
 	let asteroids : Vec<&(i32,i32)> = a.iter().filter(|v| has_angle(**v,a[center_id])==angle_200).collect();
