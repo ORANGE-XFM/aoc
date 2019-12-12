@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 //const PLANETS : [[i64;3];4]  = [ [-1,0,2], [2,-10,-7], [4,-8,8], [3,5,-1] ];
 //const PLANETS : [[i64;3];4]  = [ [-8,-10, 0],[5, 5, 10],[2, -7, 3],[9, -8, -3] ];
 const PLANETS : [[i64;3];4] = [ [17, 5, 1],[-2, -8, 8],[7, -6, 14],[1, -10, 4] ];
@@ -62,11 +60,11 @@ fn main() {
 		for i in 0..4 { pos[i]=PLANETS[i][axis] }
 		let mut vel : [i64;4] = [0;4];
 
-		let mut past = HashSet::new();
+		let past = (pos,vel).clone(); 
+
 		for i in 1..=1_000_000 {
-			past.insert((pos,vel));
 			simulate_axis_step(&mut pos,&mut vel);
-			if past.contains(&(pos,vel)) { 
+			if (pos,vel) == past { 
 				rev[axis]=i;
 				break;
 			}
