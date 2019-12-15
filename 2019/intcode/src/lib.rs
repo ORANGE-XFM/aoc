@@ -11,8 +11,11 @@ const TRACE: bool = false;
 const PROGSIZE : usize = 1000;
 
 impl Program {
-    pub fn write_mem(&mut self, pos:usize, val:Word) {
+    pub fn poke(&mut self, pos:usize, val:Word) {
         self.p[pos]=val;
+    }
+    pub fn start_at(&mut self, ip:usize) {
+        self.ip = ip;
     }
 
     fn arg_info(&self, n:u32) -> (Word, Word) {
