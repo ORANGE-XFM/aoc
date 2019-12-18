@@ -8,7 +8,7 @@ pub struct Program {
 }
 
 const TRACE: bool = false;
-const PROGSIZE : usize = 1000;
+const PROGSIZE : usize = 5000;
 
 impl Program {
     pub fn poke(&mut self, pos:usize, val:Word) {
