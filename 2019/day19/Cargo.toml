@@ -1,0 +1,8 @@
+[package]
+name = "day19"
+version = "0.1.0"
+authors = ["xavier-frederic moulet <xavier-frederic.moulet@orange.com>"]
+edition = "2018"
+
+[dependencies]
+intcode = { path = "../intcode" }
